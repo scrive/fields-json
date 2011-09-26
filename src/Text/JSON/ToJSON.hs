@@ -1,5 +1,18 @@
-{-# LANGUAGE OverlappingInstances, IncoherentInstances #-}
-module Text.JSON.ToJSON where
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Text.JSON.ToJSON
+-- Copyright   :  (c) Scrive 2011
+-- License     :  BSD-style (see the LICENSE file in the distribution)
+--
+-- Maintainer  :  mariusz@scrive.se
+-- Stability   :  stable
+-- Portability :  portable
+--
+-- Unifing some structures to JSValue
+--
+
+
+module Text.JSON.ToJSON (ToJSON(..))where
 
 import Text.JSON
 import Data.Map

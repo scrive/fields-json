@@ -33,7 +33,7 @@ library
   build-depends: containers
   build-depends: mtl
   extensions:    FlexibleInstances,
-                 TypeSynonymInstances
-                 UndecidableInstances
-                 OverlappingInstances
+                 TypeSynonymInstances,
+                 UndecidableInstances,
+                 OverlappingInstances,
                  IncoherentInstances
