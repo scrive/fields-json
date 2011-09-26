@@ -10,7 +10,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Scrive
 Maintainer:          mariusz@scrive.com
-Stability:           None
+Stability:           Development
 Category:            Web
 Build-type:          Simple
 Cabal-version:       >=1.2
