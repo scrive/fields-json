@@ -1,3 +1,4 @@
+{-# LANGUAGE OverlappingInstances, IncoherentInstances #-}
 module Text.JSON.ToJSON where
 
 import Text.JSON
@@ -5,6 +6,9 @@ import Data.Map
 
 class ToJSON a where
   toJSON:: a -> JSValue
+
+instance ToJSON JSValue where
+  toJSON = id
   
 instance ToJSON String where
   toJSON = JSString . toJSString 
