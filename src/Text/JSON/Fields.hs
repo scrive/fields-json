@@ -4,8 +4,8 @@
 -- Copyright   :  (c) Scrive 2011
 -- License     :  BSD-style (see the LICENSE file in the distribution)
 --
--- Maintainer  :  mariusz@scrive.se
--- Stability   :  stable
+-- Maintainer  :  mariusz@scrive.com
+-- Stability   :  development
 -- Portability :  portable
 --
 -- Abusing monadic do notation library for generating JSON object. 
