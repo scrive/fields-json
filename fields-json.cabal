@@ -24,7 +24,7 @@ library
      Text.JSON.JSValueContainer
 
   hs-source-dirs: src 
-
+  GHC-Options: -Werror
   build-depends: base >= 4 && < 5
   build-depends: json >= 0.4.4
   build-depends: containers
