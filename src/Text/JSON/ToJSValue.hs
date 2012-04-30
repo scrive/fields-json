@@ -8,7 +8,7 @@
 -- Stability   :  development
 -- Portability :  portable
 --
--- Unifing some structures to JSValue
+-- Unifing some structures so they can be serialized to JSValue
 --
 
 
