@@ -20,12 +20,16 @@ library
   exposed-modules: 
      Text.JSON.Gen
      Text.JSON.ToJSValue
+     Text.JSON.FromJSValue
+     Text.JSON.JSValueContainer
 
   hs-source-dirs: src 
 
   build-depends: base >= 4 && < 5
   build-depends: json >= 0.4.4
   build-depends: containers
+  build-depends: base64-bytestring >= 0.1.0.2
+  build-depends: utf8-string  >= 0.3.6
   build-depends: mtl
   extensions:    FlexibleInstances,
                  TypeSynonymInstances,
@@ -33,4 +37,6 @@ library
                  OverlappingInstances,
                  IncoherentInstances,
                  DeriveFunctor,
-                 GeneralizedNewtypeDeriving
+                 GeneralizedNewtypeDeriving,
+                 MultiParamTypeClasses,
+                 StandaloneDeriving

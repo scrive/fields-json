@@ -50,11 +50,14 @@ import Control.Monad
 import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Monad.State.Strict
+import Control.Monad.Reader
+import Control.Monad.Reader.Class
+
 import Data.Foldable
 import Data.Sequence as S
 import Text.JSON
 import Text.JSON.ToJSValue
-
+import Text.JSON.JSValueContainer
 type JSONGen = JSONGenT Identity
 
 runJSONGen :: JSONGen () -> JSValue
@@ -63,11 +66,22 @@ runJSONGen = runIdentity . runJSONGenT
 newtype JSONGenT m a = JSONGenT (StateT (Seq (String, JSValue)) m a)
   deriving (Applicative, Functor, Monad, MonadTrans)
 
+
+instance (Monad m) => MonadReader (Seq (String, JSValue)) (JSONGenT m) where
+    ask = JSONGenT (get)
+    local f (JSONGenT m) = JSONGenT $ do
+                             s <- get
+                             put (f s)
+                             res <- m
+                             put s
+                             return res
+
+
 instance MonadIO m => MonadIO (JSONGenT m) where
   liftIO = JSONGenT . liftIO
 
 runJSONGenT :: Monad m => JSONGenT m () -> m JSValue
-runJSONGenT (JSONGenT f) = (JSObject . toJSObject . toList) `liftM` execStateT f S.empty
+runJSONGenT (JSONGenT f) = getJSValue `liftM` execStateT f S.empty
 
 value :: (Monad m, ToJSValue a) => String -> a -> JSONGenT m ()
 value name val = JSONGenT $ modify (|> (name, toJSValue val))
