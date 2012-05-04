@@ -132,7 +132,6 @@ fromJSValueCustomList diggers = do
          runDiggers _ _ = return $ Just []
          
 -- ----------------------------------------------------------------
-
 -- | Simple runner
 withJSValue :: (Monad m) => JSValue -> ReaderT JSValue m a -> m a
 withJSValue j a = runReaderT a j
