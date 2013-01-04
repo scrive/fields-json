@@ -1,5 +1,5 @@
 Name:                fields-json
-Version:             0.2
+Version:             0.2.1
 Synopsis: Abusing monadic syntax JSON objects generation.            
 
 Description: 
@@ -13,7 +13,7 @@ Maintainer:          mariusz@scrive.com
 Stability:           Development
 Category:            Web
 Build-type:          Simple
-Cabal-version:       >=1.4
+Cabal-version:       >=1.6
 
 
 library
@@ -24,7 +24,7 @@ library
      Text.JSON.JSValueContainer
 
   hs-source-dirs: src 
-  GHC-Options: -Werror
+  GHC-Options: -Wall
   build-depends: base >= 4 && < 5
   build-depends: json >= 0.4.4
   build-depends: containers
@@ -40,3 +40,7 @@ library
                  GeneralizedNewtypeDeriving,
                  MultiParamTypeClasses,
                  StandaloneDeriving
+
+source-repository head
+    type: git
+    location: git://github.com/scrive/fields-json.git

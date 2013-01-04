@@ -18,7 +18,6 @@ module Text.JSON.JSValueContainer (JSValueContainer(..))where
 import Text.JSON
 import Data.Sequence as S
 import Data.Foldable
-import Text.JSON
 
 class JSValueContainer a where
     getJSValue :: a -> JSValue

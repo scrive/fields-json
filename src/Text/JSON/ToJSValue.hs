@@ -40,3 +40,6 @@ instance ToJSValue a => ToJSValue (M.Map String a) where
 
 instance ToJSValue a => ToJSValue (Maybe a) where
   toJSValue = maybe JSNull toJSValue
+
+instance (ToJSValue a, ToJSValue b) => ToJSValue (a,b) where
+  toJSValue (a,b) = JSArray [toJSValue a, toJSValue b]

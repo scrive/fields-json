@@ -32,7 +32,6 @@ import qualified Data.ByteString.Base64 as BASE64
 import Data.Ratio
 import Control.Monad.Identity
 import Data.Maybe
-import Text.JSON.String
 
 
 -- | Structures that can be 'parsed' from JSON. Instances must declare either 'fromJSValue' (parse directly from 'JSValue') or 'fromJSValueM' (uses 'MonadReader')
@@ -78,6 +77,11 @@ instance (FromJSValue a) => FromJSValue [a] where
 instance (FromJSValue a) => FromJSValue (Maybe a) where
     fromJSValue = join . fromJSValue
 
+instance (FromJSValue a, FromJSValue b) => FromJSValue (a,b) where
+    fromJSValue (JSArray [a,b]) = do a' <- fromJSValue a
+                                     b' <- fromJSValue b
+                                     return (a',b')
+    fromJSValue _ = Nothing
 
 -- ----------------------------------------------------------------
 

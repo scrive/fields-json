@@ -54,9 +54,7 @@ import Control.Monad.Identity
 import Control.Monad.Trans
 import Control.Monad.State.Strict
 import Control.Monad.Reader
-import Control.Monad.Reader.Class
 
-import Data.Foldable
 import Data.Sequence as S
 import Text.JSON
 import Text.JSON.ToJSValue
