@@ -29,7 +29,6 @@ import Control.Monad
 import Control.Monad.Reader
 import qualified Data.ByteString.UTF8 as BS
 import qualified Data.ByteString.Base64 as BASE64
-import Data.Ratio
 import Control.Monad.Identity
 import Data.Maybe
 
@@ -56,7 +55,7 @@ instance FromJSValue BS.ByteString where
     fromJSValue s = fmap BS.fromString (fromJSValue s)
 
 instance FromJSValue Integer where
-    fromJSValue (JSRational _ r) = Just $ numerator r
+    fromJSValue (JSRational _ r) = Just $ round r
     fromJSValue _ = Nothing
 
 instance FromJSValue Int where
