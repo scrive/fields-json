@@ -16,6 +16,7 @@ module Text.JSON.FromJSValue (
                                -- * Basic Parsing
                                  FromJSValue(..)
                                -- * Data Extraction
+                               , jsValueField
                                , fromJSValueField
                                , fromJSValueFieldBase64
                                , fromJSValueFieldCustom
@@ -88,6 +89,16 @@ instance (FromJSValue a, FromJSValue b) => FromJSValue (a,b) where
 askJSValue :: (JSValueContainer c , MonadReader c m) => m JSValue
 askJSValue = liftM getJSValue ask
 
+
+-- | Reading the value that is on some field. Returns 'Nothing' if
+-- JSON is not an object or field is present but cannot be parsed,
+-- 'Just Nothing' if absent, and 'Just (Just a)' otherwise
+jsValueField ::  (JSValueContainer c , MonadReader c m, FromJSValue a) => String -> m (Maybe (Maybe a))
+jsValueField s = askJSValue >>= fromObject
+    where
+      fromObject (JSObject object) = case lookup s (fromJSObject object) of Nothing -> return (Just Nothing)
+                                                                            Just a  -> return (Just `fmap` fromJSValue a)
+      fromObject _ = return Nothing
 
 -- | Reading the value that is on some field. With field if current JSON is not object
 fromJSValueField ::  (JSValueContainer c , MonadReader c m, FromJSValue a) => String -> m (Maybe a)
