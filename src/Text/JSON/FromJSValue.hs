@@ -12,21 +12,24 @@
 --
 
 
-module Text.JSON.FromJSValue (
-                               -- * Basic Parsing
-                                 FromJSValue(..)
-                               , FromJSValueWithUpdate(..)
-                               , MatchWithJSValue(..)
-                               -- * Data Extraction
-                               , jsValueField
-                               , fromJSValueField
-                               , fromJSValueFieldBase64
-                               , fromJSValueFieldCustom
-                               , fromJSValueCustomMany
-                               , fromJSValueCustomList
-                               , fromJSValueManyWithUpdate
-                               -- * Running
-                               , withJSValue  ) where
+module Text.JSON.FromJSValue
+ (
+   -- * Basic Parsing
+   FromJSValue(..)
+ , FromJSValueWithUpdate(..)
+ , MatchWithJSValue(..)
+ -- * Data Extraction
+ , jsValueField
+ , fromJSValueField
+ , fromJSValueFieldBase64
+ , fromJSValueFieldCustom
+ , fromJSValueCustomMany
+ , fromJSValueCustomList
+ , fromJSValueManyWithUpdate
+ -- * Running
+ , withJSValue
+)
+where
 import Text.JSON
 import Text.JSON.JSValueContainer
 import Control.Monad
@@ -34,29 +37,31 @@ import Control.Monad.Reader
 import qualified Data.ByteString.UTF8 as BS
 import qualified Data.ByteString.Base64 as BASE64
 import Control.Monad.Identity
-import Data.Maybe
 import Data.List
 
--- | Structures that can be 'parsed' from JSON. Instances must declare either 'fromJSValue' (parse directly from 'JSValue') or 'fromJSValueM' (uses 'MonadReader')
+-- | Structures that can be 'parsed' from JSON. Instances must declare
+-- either 'fromJSValue' (parse directly from 'JSValue') or
+-- 'fromJSValueM' (uses 'MonadReader')
 class FromJSValue a where
     fromJSValue :: JSValue -> Maybe a
     fromJSValue j = runIdentity $ withJSValue j $ liftM fromJSValueM askJSValue
-    fromJSValueM :: (JSValueContainer c , MonadReader c m) => m (Maybe a)
+    fromJSValueM :: (JSValueContainer c, MonadReader c m) => m (Maybe a)
     fromJSValueM = liftM fromJSValue askJSValue
 
 
--- | Structures that can be 'parsed' from JSON if some structure for update is provided
+-- | Structures that can be 'parsed' from JSON if some structure for
+-- update is provided
 class FromJSValueWithUpdate a where
     fromJSValueWithUpdate :: Maybe a -> JSValue -> Maybe a
     fromJSValueWithUpdate ma j = runIdentity $ withJSValue j $ liftM (fromJSValueWithUpdateM ma) askJSValue
-    fromJSValueWithUpdateM :: (JSValueContainer c , MonadReader c m) =>  Maybe a  -> m (Maybe a)
+    fromJSValueWithUpdateM :: (JSValueContainer c, MonadReader c m) =>  Maybe a  -> m (Maybe a)
     fromJSValueWithUpdateM ma = liftM (fromJSValueWithUpdate ma) askJSValue
 
 -- | Structures that can be matched with JSValue
 class MatchWithJSValue a where
     matchesWithJSValue :: a -> JSValue -> Bool
     matchesWithJSValue a j = runIdentity $ withJSValue j $ liftM (matchesWithJSValueM a) askJSValue
-    matchesWithJSValueM :: (JSValueContainer c , MonadReader c m) =>  a  -> m Bool
+    matchesWithJSValueM :: (JSValueContainer c, MonadReader c m) =>  a  -> m Bool
     matchesWithJSValueM a = liftM (matchesWithJSValue a) askJSValue
 
 
@@ -94,11 +99,7 @@ instance FromJSValue Float where
     fromJSValue _ = Nothing
 
 instance (FromJSValue a) => FromJSValue [a] where
-    fromJSValue (JSArray list) = let plist = map fromJSValue list
-                                 in if (all isJust plist)
-                                     then Just $ map fromJust plist
-                                     else Nothing
-
+    fromJSValue (JSArray list) = mapM fromJSValue list
     fromJSValue _ = Nothing
 
 
@@ -108,62 +109,95 @@ instance (FromJSValue a) => FromJSValue (Maybe a) where
 
 
 instance (FromJSValue a, FromJSValue b) => FromJSValue (a,b) where
-    fromJSValue (JSArray [a,b]) = do a' <- fromJSValue a
-                                     b' <- fromJSValue b
-                                     return (a',b')
+    fromJSValue (JSArray [a,b]) = do
+      a' <- fromJSValue a
+      b' <- fromJSValue b
+      return (a',b')
     fromJSValue _ = Nothing
 
 -- ----------------------------------------------------------------
 
 -- | Getting JSON part of envirement
-askJSValue :: (JSValueContainer c , MonadReader c m) => m JSValue
+askJSValue :: (JSValueContainer c, MonadReader c m) => m JSValue
 askJSValue = liftM getJSValue ask
 
 
 -- | Reading the value that is on some field. Returns 'Nothing' if
 -- JSON is not an object or field is present but cannot be parsed,
 -- 'Just Nothing' if absent, and 'Just (Just a)' otherwise
-jsValueField ::  (JSValueContainer c , MonadReader c m, FromJSValue a) => String -> m (Maybe (Maybe a))
+jsValueField ::  (JSValueContainer c, MonadReader c m, FromJSValue a) => String -> m (Maybe (Maybe a))
 jsValueField s = askJSValue >>= fromObject
     where
-      fromObject (JSObject object) = case lookup s (fromJSObject object) of Nothing -> return (Just Nothing)
-                                                                            Just a  -> return (Just `fmap` fromJSValue a)
+      fromObject (JSObject object) =
+        case lookup s (fromJSObject object) of
+          Nothing -> return (Just Nothing)
+          Just a  -> return (Just `fmap` fromJSValue a)
       fromObject _ = return Nothing
 
--- | Reading the value that is on some field. With fail if current JSON is not object.
--- | It can be ussed with 'Maybe a'. In such case Nothing will be returned iif field was not set.
-fromJSValueField ::  (JSValueContainer c , MonadReader c m, FromJSValue a) => String -> m (Maybe a)
+-- | Reading the value that is on a field. Semantics are a bit
+-- involved, example GHCi session should clarify:
+--
+--
+-- @
+-- Prelude> :set -XNoMonomorphismRestriction
+-- Prelude> let x = withJSValue (JSObject (toJSObject [("key",JSString $ toJSString "value")]))
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe Int)
+-- Nothing
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe Int))
+-- Just Nothing
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe Int)))
+-- Just (Just Nothing)
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe String)
+-- Just "value"
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe String))
+-- Just (Just "value")
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe String)))
+-- Just (Just (Just "value"))
+-- Prelude> let x = withJSValue (JSArray [])
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe String)
+-- Nothing
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe String))
+-- Nothing
+-- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe String)))
+-- Nothing
+-- @
+--
+fromJSValueField :: (JSValueContainer c, MonadReader c m, FromJSValue a) => String -> m (Maybe a)
 fromJSValueField s = liftM fromObject askJSValue
     where
       fromObject (JSObject object) = join (fmap fromJSValue (lookup s $ fromJSObject object))
       fromObject _ = Nothing
 
--- | Version of 'fromJSValueField' for Base64 encoded data to  avoid memory leak.
-fromJSValueFieldBase64 ::(JSValueContainer c , MonadReader c m) =>String -> m  (Maybe BS.ByteString)
+-- | Version of 'fromJSValueField' for Base64 encoded data to avoid
+-- memory leak.
+fromJSValueFieldBase64 :: (JSValueContainer c, MonadReader c m) => String -> m (Maybe BS.ByteString)
 fromJSValueFieldBase64 s =  liftM dc (fromJSValueField s)
-    where dc s' = case (fmap BASE64.decode s') of
-                            Just (Right r) -> Just r
-                            _ -> Nothing
+    where dc s' = case fmap BASE64.decode s' of
+                    Just (Right r) -> Just r
+                    _ -> Nothing
 
--- | Generalization of 'fromJSValueField'. Does not use 'FromJSValue' instances
-fromJSValueFieldCustom :: (JSValueContainer c , MonadReader c m) =>  String -> m (Maybe a) -> m (Maybe a)
+-- | Generalization of 'fromJSValueField'. Does not use 'FromJSValue'
+-- instances.
+fromJSValueFieldCustom :: (JSValueContainer c, MonadReader c m) => String -> m (Maybe a) -> m (Maybe a)
 fromJSValueFieldCustom s digger = do
     mobj <- fromJSValueField s
     case mobj of
-         Just obj -> local (setJSValue obj) (digger)
-         Nothing -> return Nothing
+      Just obj -> local (setJSValue obj) (digger)
+      Nothing -> return Nothing
 
--- | Runs parser on each element of underlaying json. Returns Just iff JSON is array.
-fromJSValueCustomMany :: (JSValueContainer c , MonadReader c m) => m (Maybe a) -> m (Maybe [a])
+-- | Runs parser on each element of underlaying json. Returns Just iff
+-- JSON is array.
+fromJSValueCustomMany :: (JSValueContainer c, MonadReader c m) => m (Maybe a) -> m (Maybe [a])
 fromJSValueCustomMany digger = fromJSValueCustomList (repeat digger)
 
--- | Generalization of 'fromJSValueCustomMany', where each element of array can have different parser.
-fromJSValueCustomList :: (JSValueContainer c , MonadReader c m) => [m (Maybe a)] -> m (Maybe [a])
+-- | Generalization of 'fromJSValueCustomMany', where each element of
+-- array can have different parser.
+fromJSValueCustomList :: (JSValueContainer c, MonadReader c m) => [m (Maybe a)] -> m (Maybe [a])
 fromJSValueCustomList diggers = do
     mlist <- fromJSValueM
     case mlist of
          Nothing -> return Nothing
-         Just list ->  runDiggers list diggers
+         Just list -> runDiggers list diggers
     where
          runDiggers (j:js) (d:ds) = do
              mres <- local (setJSValue j) d
@@ -177,15 +211,19 @@ fromJSValueCustomList diggers = do
          runDiggers _ _ = return $ Just []
 
 
--- | Runs parser on each element of underlaying json. Returns Just iff JSON is array.
-fromJSValueManyWithUpdate :: (JSValueContainer c , MonadReader c m, FromJSValueWithUpdate a, MatchWithJSValue a) => [a] -> m (Maybe [a])
+-- | Runs parser on each element of underlying json. Returns 'Just' iff
+-- JSON is an array.
+--
+-- Note: This method has quadratic complexity. It is better to write
+-- less general matching algorithms that use Maps.
+fromJSValueManyWithUpdate :: (JSValueContainer c, MonadReader c m, FromJSValueWithUpdate a, MatchWithJSValue a) => [a] -> m (Maybe [a])
 fromJSValueManyWithUpdate values = do
     mjs <- fromJSValueM
     case mjs of
          Nothing -> return Nothing
          Just js -> runFromJSValueAndUpdate js
     where
-         runFromJSValueAndUpdate (j:js)=  do
+         runFromJSValueAndUpdate (j:js) =  do
              mres <- local (setJSValue j) (fromJSValueWithUpdateM (find (\v -> matchesWithJSValue v j) values))
              case mres of
                  Just res -> do
