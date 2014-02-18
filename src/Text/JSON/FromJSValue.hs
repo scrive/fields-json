@@ -85,6 +85,14 @@ instance FromJSValue Bool where
     fromJSValue (JSBool v) = Just $ v
     fromJSValue _ = Nothing
 
+instance FromJSValue Double where
+    fromJSValue (JSRational _ r) = Just $ fromRational r
+    fromJSValue _ = Nothing
+
+instance FromJSValue Float where
+    fromJSValue (JSRational _ r) = Just $ fromRational r
+    fromJSValue _ = Nothing
+
 instance (FromJSValue a) => FromJSValue [a] where
     fromJSValue (JSArray list) = let plist = map fromJSValue list
                                  in if (all isJust plist)
