@@ -37,7 +37,8 @@ library
                  FlexibleInstances,
                  UndecidableInstances,
                  MultiParamTypeClasses,
-                 GeneralizedNewtypeDeriving
+                 GeneralizedNewtypeDeriving,
+                 IncoherentInstances
 
 source-repository head
     type: git
