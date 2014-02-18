@@ -107,12 +107,51 @@ instance (FromJSValue a) => FromJSValue [a] where
 instance (FromJSValue a) => FromJSValue (Maybe a) where
     fromJSValue = Just . fromJSValue
 
-
 instance (FromJSValue a, FromJSValue b) => FromJSValue (a,b) where
     fromJSValue (JSArray [a,b]) = do
       a' <- fromJSValue a
       b' <- fromJSValue b
       return (a',b')
+    fromJSValue _ = Nothing
+
+instance (FromJSValue a, FromJSValue b, FromJSValue c) => FromJSValue (a,b,c) where
+    fromJSValue (JSArray [a,b,c]) = do
+      a' <- fromJSValue a
+      b' <- fromJSValue b
+      c' <- fromJSValue c
+      return (a',b',c')
+    fromJSValue _ = Nothing
+
+instance (FromJSValue a, FromJSValue b, FromJSValue c, FromJSValue d) => FromJSValue (a,b,c,d) where
+    fromJSValue (JSArray [a,b,c,d]) = do
+      a' <- fromJSValue a
+      b' <- fromJSValue b
+      c' <- fromJSValue c
+      d' <- fromJSValue d
+      return (a',b',c',d')
+    fromJSValue _ = Nothing
+
+instance (FromJSValue a, FromJSValue b, FromJSValue c,
+          FromJSValue d, FromJSValue e) => FromJSValue (a,b,c,d,e) where
+    fromJSValue (JSArray [a,b,c,d,e]) = do
+      a' <- fromJSValue a
+      b' <- fromJSValue b
+      c' <- fromJSValue c
+      d' <- fromJSValue d
+      e' <- fromJSValue e
+      return (a',b',c',d',e')
+    fromJSValue _ = Nothing
+
+instance (FromJSValue a, FromJSValue b, FromJSValue c,
+          FromJSValue d, FromJSValue e, FromJSValue f) => FromJSValue (a,b,c,d,e,f) where
+    fromJSValue (JSArray [a,b,c,d,e,f]) = do
+      a' <- fromJSValue a
+      b' <- fromJSValue b
+      c' <- fromJSValue c
+      d' <- fromJSValue d
+      e' <- fromJSValue e
+      f' <- fromJSValue f
+      return (a',b',c',d',e',f')
     fromJSValue _ = Nothing
 
 -- ----------------------------------------------------------------
