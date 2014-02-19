@@ -62,9 +62,9 @@ import Data.List
 -- generalized to work in any 'Control.Monad.Reader.MonadReader' 'Text.JSON.JSValue'.
 class FromJSValue a where
     fromJSValue :: JSValue -> Maybe a
-    fromJSValue j = runIdentity $ withJSValue j $ liftM fromJSValueM askJSValue
+    fromJSValue j = runIdentity $ withJSValue j $ liftM fromJSValueM ask
     fromJSValueM :: (MonadReader JSValue m) => m (Maybe a)
-    fromJSValueM = liftM fromJSValue askJSValue
+    fromJSValueM = liftM fromJSValue ask
 
 
 -- | Structures that can be 'parsed' from JSON, fields absent in the
@@ -74,16 +74,16 @@ class FromJSValue a where
 -- structure element to default value.
 class FromJSValueWithUpdate a where
     fromJSValueWithUpdate :: Maybe a -> JSValue -> Maybe a
-    fromJSValueWithUpdate ma j = runIdentity $ withJSValue j $ liftM (fromJSValueWithUpdateM ma) askJSValue
+    fromJSValueWithUpdate ma j = runIdentity $ withJSValue j $ liftM (fromJSValueWithUpdateM ma) ask
     fromJSValueWithUpdateM :: (MonadReader JSValue m) =>  Maybe a  -> m (Maybe a)
-    fromJSValueWithUpdateM ma = liftM (fromJSValueWithUpdate ma) askJSValue
+    fromJSValueWithUpdateM ma = liftM (fromJSValueWithUpdate ma) ask
 
 -- | Structures that can be matched with JSValue
 class MatchWithJSValue a where
     matchesWithJSValue :: a -> JSValue -> Bool
-    matchesWithJSValue a j = runIdentity $ withJSValue j $ liftM (matchesWithJSValueM a) askJSValue
+    matchesWithJSValue a j = runIdentity $ withJSValue j $ liftM (matchesWithJSValueM a) ask
     matchesWithJSValueM :: (MonadReader JSValue m) =>  a  -> m Bool
-    matchesWithJSValueM a = liftM (matchesWithJSValue a) askJSValue
+    matchesWithJSValueM a = liftM (matchesWithJSValue a) ask
 
 
 -- ---------------------------------------------------------------------------
@@ -186,16 +186,12 @@ instance (FromJSValue a, FromJSValue b, FromJSValue c,
 
 -- ----------------------------------------------------------------
 
--- | Getting JSON part of envirement
-askJSValue :: (MonadReader JSValue m) => m JSValue
-askJSValue = ask
-
 
 -- | Reading the value that is on some field. Returns 'Nothing' if
 -- JSON is not an object or field is present but cannot be parsed,
 -- 'Just Nothing' if absent, and 'Just (Just a)' otherwise
 jsValueField ::  (MonadReader JSValue m, FromJSValue a) => String -> m (Maybe (Maybe a))
-jsValueField s = askJSValue >>= fromObject
+jsValueField s = ask >>= fromObject
     where
       fromObject (JSObject object) =
         case lookup s (fromJSObject object) of
@@ -229,7 +225,7 @@ jsValueField s = askJSValue >>= fromObject
 -- > Nothing
 --
 fromJSValueField :: (MonadReader JSValue m, FromJSValue a) => String -> m (Maybe a)
-fromJSValueField s = liftM fromObject askJSValue
+fromJSValueField s = liftM fromObject ask
     where
       fromObject (JSObject object) = join (fmap fromJSValue (lookup s $ fromJSObject object))
       fromObject _ = Nothing
