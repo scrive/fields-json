@@ -207,30 +207,27 @@ jsValueField s = askJSValue >>= fromObject
 -- | Reading the value that is on a field. Semantics are a bit
 -- involved, example GHCi session should clarify:
 --
---
--- @
--- Prelude> :set -XNoMonomorphismRestriction
--- Prelude> let x = withJSValue (JSObject (toJSObject [("key",JSString $ toJSString "value")]))
--- Prelude> x (fromJSValueField "key") :: IO (Maybe Int)
--- Nothing
--- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe Int))
--- Just Nothing
--- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe Int)))
--- Just (Just Nothing)
--- Prelude> x (fromJSValueField "key") :: IO (Maybe String)
--- Just "value"
--- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe String))
--- Just (Just "value")
--- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe String)))
--- Just (Just (Just "value"))
--- Prelude> let x = withJSValue (JSArray [])
--- Prelude> x (fromJSValueField "key") :: IO (Maybe String)
--- Nothing
--- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe String))
--- Nothing
--- Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe String)))
--- Nothing
--- @
+-- > Prelude> :set -XNoMonomorphismRestriction
+-- > Prelude> let x = withJSValue (JSObject (toJSObject [("key",JSString $ toJSString "value")]))
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe Int)
+-- > Nothing
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe Int))
+-- > Just Nothing
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe Int)))
+-- > Just (Just Nothing)
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe String)
+-- > Just "value"
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe String))
+-- > Just (Just "value")
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe String)))
+-- > Just (Just (Just "value"))
+-- > Prelude> let x = withJSValue (JSArray [])
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe String)
+-- > Nothing
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe String))
+-- > Nothing
+-- > Prelude> x (fromJSValueField "key") :: IO (Maybe (Maybe (Maybe String)))
+-- > Nothing
 --
 fromJSValueField :: (JSValueContainer c, MonadReader c m, FromJSValue a) => String -> m (Maybe a)
 fromJSValueField s = liftM fromObject askJSValue
