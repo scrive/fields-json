@@ -41,7 +41,23 @@ import Data.List
 
 -- | Structures that can be 'parsed' from JSON. Instances must declare
 -- either 'fromJSValue' (parse directly from 'JSValue') or
--- 'fromJSValueM' (uses 'MonadReader')
+-- 'fromJSValueM' (uses 'MonadReader').
+--
+-- Example implementation:
+--
+-- > data D = D String Int
+-- >
+-- > instance FromJSValue D where
+-- >   fromJSValue = do
+-- >     s <- fromJSValue "string_key"
+-- >     i <- fromJSValue "int_key"
+-- >     return (D <$> s <*> i)
+--
+-- Note that we make use of 'MonadReader' instance for "(->)" and of
+-- 'Control.Applicative' programming style with 'Control.Applicative.<$>' and 'Control.Applicative.<*>'.
+--
+-- Note: 'fromJSValueM' is deprecated, in future 'fromJSValue' will be
+-- generalized to work in any 'Control.Monad.Reader.MonadReader' 'Text.JSON.JSValue'.
 class FromJSValue a where
     fromJSValue :: JSValue -> Maybe a
     fromJSValue j = runIdentity $ withJSValue j $ liftM fromJSValueM askJSValue
@@ -49,8 +65,11 @@ class FromJSValue a where
     fromJSValueM = liftM fromJSValue askJSValue
 
 
--- | Structures that can be 'parsed' from JSON if some structure for
--- update is provided
+-- | Structures that can be 'parsed' from JSON, fields absent in the
+-- JSON will be filled in using (optional) original structure.
+--
+-- By convention JSON null should be treated as a request to reset
+-- structure element to default value.
 class FromJSValueWithUpdate a where
     fromJSValueWithUpdate :: Maybe a -> JSValue -> Maybe a
     fromJSValueWithUpdate ma j = runIdentity $ withJSValue j $ liftM (fromJSValueWithUpdateM ma) askJSValue
@@ -273,7 +292,25 @@ fromJSValueManyWithUpdate values = do
                  _ -> return Nothing
          runFromJSValueAndUpdate [] = return $ Just []
 
--- ----------------------------------------------------------------
--- | Simple runner
+-- | Simple runner. Example:
+--
+-- > let (v :: MyStruct) = runIdentity $ withJSValue js (fromJSValueM)
+--
+-- or inline:
+--
+-- > let z = runIdentity $ withJSValue js $ do
+-- >             a <- fromJSValueField "a"
+-- >             b <- fromJSValueField "b"
+-- >             c <- fromJSValueField "c"
+-- >             return ((,,) <$> a <*> b <*> <*> c)
+--
+-- or using the monad transformer:
+--
+-- > z <- withJSValue js $ do
+-- >             a <- fromJSValueField "a"
+-- >             b <- fromJSValueField "b"
+-- >             c <- fromJSValueField "c"
+-- >             return ((,,) <$> a <*> b <*> c)
+--
 withJSValue :: (Monad m) => JSValue -> ReaderT JSValue m a -> m a
 withJSValue j a = runReaderT a j
