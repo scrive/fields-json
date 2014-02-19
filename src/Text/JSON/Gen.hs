@@ -8,32 +8,37 @@
 -- Stability   :  development
 -- Portability :  portable
 --
--- Abusing monadic 'do' notation library for generating JSON object. 
--- Hard-binded to json package from hackage.
+-- Abusing monadic 'do' notation library for generating JSON object.
+-- Hard-bound to 'Text.JSON.JSValue' from json package from hackage.
+--
 -- Main ideas
 --
--- * Overloaded function 'value' to set values in underlying JSON - 'Bool', 'Int', 'String', lists  etc.
+-- * Overloaded function 'value' to set values in underlying JSON -
+-- 'Bool', 'Int', 'String', lists, etc.
 --
--- * JSON generation may not be pure  with 'valueM'. You can perform some IO while generating JSON. This is usefull skip useless inner binding.
+-- * JSON generation may not be pure with 'valueM'. You can perform
+-- some IO while generating JSON. This is usefull skip useless inner
+-- binding.
 --
--- * Compositionality - use 'object' to easy create JSON objects
+-- * Compositionality - use 'object' to easy create JSON objects. The
+-- 'objects' function is there to support arrays of objects.
 --
--- * Monadic notation - it really looks nicer then composition with '.' or some magic combinator
+-- * Monadic notation - it really looks nicer then composition with
+-- '.' or some magic combinator
 --
--- >
 -- > runJSONGen $ do
 -- >     value "a" "a"
 -- >     value "b" [1,2,3]
 -- >     object "c" $ do
 -- >         value "x" True
 -- >         value "y" False
--- >
--- 
--- Will generate json object 
---  {a : "a", b: [1,2,3], c: {x: true, y : false}} 
+--
+-- Will generate json object:
+--
+-- > {a : "a", b: [1,2,3], c: {x: true, y : false}}
+--
 
-
- module Text.JSON.Gen (
+module Text.JSON.Gen (
     module Text.JSON.ToJSValue
     -- * Basic types
   , JSONGen
