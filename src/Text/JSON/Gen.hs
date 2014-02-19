@@ -60,9 +60,10 @@ import Control.Monad.Trans
 import Control.Monad.State.Strict
 
 import qualified Data.Sequence as S
+
+import Data.Foldable
 import Text.JSON
 import Text.JSON.ToJSValue
-import Text.JSON.JSValueContainer
 
 -- --------------------------------------------------------------
 
@@ -84,7 +85,7 @@ runJSONGen = runIdentity . runJSONGenT
 
 
 runJSONGenT :: Monad m => JSONGenT m () -> m JSValue
-runJSONGenT (JSONGenT f) = getJSValue `liftM` execStateT f S.empty
+runJSONGenT (JSONGenT f) = (JSObject . toJSObject . toList) `liftM` execStateT f S.empty
 
 -- --------------------------------------------------------------
 
