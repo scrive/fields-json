@@ -51,8 +51,8 @@ import Data.List
 -- >
 -- > instance FromJSValue D where
 -- >   fromJSValue = do
--- >     s <- fromJSValue "string_key"
--- >     i <- fromJSValue "int_key"
+-- >     s <- fromJSValueField "string_key"
+-- >     i <- fromJSValueField "int_key"
 -- >     return (D <$> s <*> i)
 --
 -- Note that we make use of 'MonadReader' instance for "(->)" and of
@@ -306,7 +306,7 @@ fromJSValueManyWithUpdate values = do
 -- >             a <- fromJSValueField "a"
 -- >             b <- fromJSValueField "b"
 -- >             c <- fromJSValueField "c"
--- >             return ((,,) <$> a <*> b <*> <*> c)
+-- >             return ((,,) <$> a <*> b <*> c)
 --
 -- or using the monad transformer:
 --
