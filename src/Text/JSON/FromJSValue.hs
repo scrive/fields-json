@@ -30,13 +30,16 @@ module Text.JSON.FromJSValue
  , withJSValue
 )
 where
+
 import Text.JSON
 import Text.JSON.JSValueContainer
 import Control.Monad
 import Control.Monad.Reader
 import qualified Data.ByteString.UTF8 as BS
 import qualified Data.ByteString.Base64 as BASE64
+import Control.Applicative
 import Control.Monad.Identity
+import Data.Int
 import Data.List
 
 -- | Structures that can be 'parsed' from JSON. Instances must declare
@@ -104,6 +107,15 @@ instance FromJSValue Integer where
 
 instance FromJSValue Int where
     fromJSValue j = liftM fromIntegral (fromJSValue j :: Maybe Integer)
+
+instance FromJSValue Int16 where
+    fromJSValue j = fromIntegral <$> (fromJSValue j :: Maybe Integer)
+
+instance FromJSValue Int32 where
+    fromJSValue j = fromIntegral <$> (fromJSValue j :: Maybe Integer)
+
+instance FromJSValue Int64 where
+    fromJSValue j = fromIntegral <$> (fromJSValue j :: Maybe Integer)
 
 instance FromJSValue Bool where
     fromJSValue (JSBool v) = Just $ v
