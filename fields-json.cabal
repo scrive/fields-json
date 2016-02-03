@@ -5,7 +5,7 @@ Synopsis:
 
 Description:
   Generation of big, complex JSON objects with 'Text.JSON' is painful.
-  And autoderivation is not always posible.
+  And autoderivation is not always possible.
   Check documentation of 'Text.JSON.Gen' for more info.
 
 License:             BSD3
