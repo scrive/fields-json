@@ -10,8 +10,9 @@ Description:
 
 License:             BSD3
 License-file:        LICENSE
-Author:              Scrive
-Maintainer:          mariusz@scrive.com
+Author:              Scrive AB
+Maintainer:          Mariusz Rak <mariusz@scrive.com>
+Copyright:           Scrive AB
 Stability:           Development
 Category:            Web
 Build-type:          Simple
