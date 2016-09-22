@@ -8,6 +8,7 @@ Description:
   And autoderivation is not always possible.
   Check documentation of 'Text.JSON.Gen' for more info.
 
+Homepage:            https://github.com/scrive/fields-json
 License:             BSD3
 License-file:        LICENSE
 Author:              Scrive AB
@@ -17,8 +18,13 @@ Stability:           Development
 Category:            Web
 Build-type:          Simple
 Cabal-version:       >=1.6
-Tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
+Tested-with:         GHC == 7.4.2,  GHC == 7.6.3, GHC == 7.8.4,
+                     GHC == 7.10.3, GHC == 8.0.1
 Extra-Source-Files:  README.md
+
+source-repository head
+    type: git
+    location: git://github.com/scrive/fields-json.git
 
 library
   exposed-modules:
@@ -41,7 +47,3 @@ library
                  MultiParamTypeClasses,
                  GeneralizedNewtypeDeriving,
                  IncoherentInstances
-
-source-repository head
-    type: git
-    location: git://github.com/scrive/fields-json.git
