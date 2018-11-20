@@ -31,7 +31,7 @@ instance ToJSValue String where
 
 instance Real a => ToJSValue a where
   toJSValue = JSRational True . toRational
-  
+
 instance ToJSValue a => ToJSValue [a] where
   toJSValue = JSArray . fmap toJSValue
 
