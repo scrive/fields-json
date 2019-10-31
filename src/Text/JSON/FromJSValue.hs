@@ -36,9 +36,9 @@ import Control.Monad
 import Control.Monad.Reader
 import qualified Data.ByteString.UTF8 as BS
 import qualified Data.ByteString.Base64 as BASE64
-import Control.Applicative
 import Control.Monad.Identity
 import Data.Int
+import Data.Word
 import Data.List
 
 -- | Structures that can be 'parsed' from JSON. Instances must declare
@@ -93,7 +93,7 @@ class MatchWithJSValue a where
 instance FromJSValue JSValue where
     fromJSValue = Just
 
-instance FromJSValue String where
+instance {-# OVERLAPPING #-} FromJSValue String where
     fromJSValue (JSString string) = Just $ fromJSString string
     fromJSValue _ = Nothing
 
@@ -105,16 +105,28 @@ instance FromJSValue Integer where
     fromJSValue _ = Nothing
 
 instance FromJSValue Int where
-    fromJSValue j = liftM fromIntegral (fromJSValue j :: Maybe Integer)
+    fromJSValue j = fromInteger <$> fromJSValue j
 
 instance FromJSValue Int16 where
-    fromJSValue j = fromIntegral <$> (fromJSValue j :: Maybe Integer)
+    fromJSValue j = fromInteger <$> fromJSValue j
 
 instance FromJSValue Int32 where
-    fromJSValue j = fromIntegral <$> (fromJSValue j :: Maybe Integer)
+    fromJSValue j = fromInteger <$> fromJSValue j
 
 instance FromJSValue Int64 where
-    fromJSValue j = fromIntegral <$> (fromJSValue j :: Maybe Integer)
+    fromJSValue j = fromInteger <$> fromJSValue j
+
+instance FromJSValue Word where
+    fromJSValue j = fromInteger <$> fromJSValue j
+
+instance FromJSValue Word16 where
+    fromJSValue j = fromInteger <$> fromJSValue j
+
+instance FromJSValue Word32 where
+    fromJSValue j = fromInteger <$> fromJSValue j
+
+instance FromJSValue Word64 where
+    fromJSValue j = fromInteger <$> fromJSValue j
 
 instance FromJSValue Bool where
     fromJSValue (JSBool v) = Just $ v
@@ -128,10 +140,9 @@ instance FromJSValue Float where
     fromJSValue (JSRational _ r) = Just $ fromRational r
     fromJSValue _ = Nothing
 
-instance (FromJSValue a) => FromJSValue [a] where
+instance FromJSValue a => FromJSValue [a] where
     fromJSValue (JSArray list) = mapM fromJSValue list
     fromJSValue _ = Nothing
-
 
 -- | Parsing any Maybe always returns Just
 instance (FromJSValue a) => FromJSValue (Maybe a) where
