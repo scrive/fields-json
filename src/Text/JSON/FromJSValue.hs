@@ -31,15 +31,15 @@ module Text.JSON.FromJSValue
 )
 where
 
-import Text.JSON
 import Control.Monad
-import Control.Monad.Reader
-import qualified Data.ByteString.UTF8 as BS
-import qualified Data.ByteString.Base64 as BASE64
 import Control.Monad.Identity
+import Control.Monad.Reader
 import Data.Int
-import Data.Word
 import Data.List
+import Data.Word
+import Text.JSON
+import qualified Data.ByteString.Base64 as BASE64
+import qualified Data.ByteString.UTF8 as BS
 
 -- | Structures that can be 'parsed' from JSON. Instances must declare
 -- either 'fromJSValue' (parse directly from 'JSValue') or

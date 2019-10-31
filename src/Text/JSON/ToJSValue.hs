@@ -15,9 +15,9 @@
 module Text.JSON.ToJSValue (ToJSValue(..))where
 
 import Data.Int
+import Data.Map as M
 import Data.Word
 import Text.JSON
-import Data.Map as M
 
 class ToJSValue a where
   toJSValue :: a -> JSValue
