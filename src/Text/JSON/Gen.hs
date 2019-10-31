@@ -53,16 +53,13 @@ module Text.JSON.Gen (
   , objects
   ) where
 
-import Control.Applicative
 import Control.Monad
 import Control.Monad.Identity
-import Control.Monad.Trans
 import Control.Monad.State.Strict
-
-import qualified Data.Sequence as S
-
 import Data.Foldable
 import Text.JSON
+import qualified Data.Sequence as S
+
 import Text.JSON.ToJSValue
 
 -- --------------------------------------------------------------

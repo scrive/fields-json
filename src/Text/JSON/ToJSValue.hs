@@ -14,8 +14,10 @@
 
 module Text.JSON.ToJSValue (ToJSValue(..))where
 
-import Text.JSON
+import Data.Int
 import Data.Map as M
+import Data.Word
+import Text.JSON
 
 class ToJSValue a where
   toJSValue :: a -> JSValue
@@ -26,10 +28,46 @@ instance ToJSValue JSValue where
 instance ToJSValue Bool where
   toJSValue = JSBool
 
-instance ToJSValue String where
+instance {-# OVERLAPPING #-} ToJSValue String where
   toJSValue = JSString . toJSString
 
-instance Real a => ToJSValue a where
+instance ToJSValue Integer where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Int where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Int8 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Int16 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Int32 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Int64 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Word where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Word8 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Word16 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Word32 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Word64 where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Double where
+  toJSValue = JSRational False . toRational
+
+instance ToJSValue Float where
   toJSValue = JSRational True . toRational
 
 instance ToJSValue a => ToJSValue [a] where
