@@ -18,7 +18,7 @@ Stability:           Development
 Category:            Web
 Build-type:          Simple
 Cabal-version:       >=1.10
-tested-with:         GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.4, GHC == 8.6.2
+tested-with:         GHC == 8.0.2 || == 8.2.2 || == 8.4.4 || == 8.6.5
 Extra-Source-Files:  README.md CHANGELOG.md
 
 source-repository head
